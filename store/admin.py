@@ -1,10 +1,10 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import User
-from .models import Product
-from .models import Category
+from .models.user_profile_model import UserProfile
+from .models.product_model import Product
+from .models.category_model import Category
 
-admin.site.register(User)
+admin.site.register(UserProfile)
 admin.site.register(Product)
 admin.site.register(Category)
