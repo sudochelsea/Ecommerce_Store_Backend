@@ -17,6 +17,9 @@ class ProductsView(APIView):
         serializer = ProductSerializer(product, many=True)
         return JsonResponse(serializer.data, safe=False)
 
+
+class ProductCreateView(APIView):
+
     def post(self, request, format=None):
 
         # this converts the JSON data into a python object
@@ -30,18 +33,21 @@ class ProductsView(APIView):
 
 
 class ProductView(APIView):
-
     def get_objects(self, pk):
         try:
             return Product.objects.filter(id=pk, is_deleted=False)
         except Product.DoesNotExist:
             raise Http404('Not Found')
 
+
+class ProductListView(APIView):
     def get(self, request, pk, format=None):
         product = self.get_objects(pk)
         serializer = ProductSerializer(product)
         return JsonResponse(serializer.data)
 
+
+class ProductUpdateView(APIView):
     def put(self, request, pk, format=None):
         product = self.get_objects(pk)
         serializer = ProductSerializer(data=request.data)
@@ -51,6 +57,8 @@ class ProductView(APIView):
             return JsonResponse(serializer.data)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class ProductDeleteView(APIView):
     def delete(self, request, pk, format=None):
         product = self.get_objects(pk)
         product.is_deleted = True
