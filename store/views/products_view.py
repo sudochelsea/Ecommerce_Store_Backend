@@ -1,15 +1,18 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import status
-# from rest_framework.response import Response
+from rest_framework.response import Response
 from store.models.product_model import Product
 from store.serializers.product_serializers import ProductSerializer
 from django.http import Http404, HttpResponse, JsonResponse
 
 
 # Create your views here.
+# '''
+# Helper method to get the object with given product_id
+# '''
 
-class ProductsView(APIView):
+class ProductListView(APIView):
     # getting all products from the database as JSON
     def get(self, request, format=None):
 
@@ -32,25 +35,33 @@ class ProductCreateView(APIView):
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ProductView(APIView):
-    def get_objects(self, pk):
+class ProductDetailView(APIView):
+
+    def get_object(self, pk):
         try:
-            return Product.objects.filter(id=pk, is_deleted=False)
+            return Product.objects.get(id=pk, is_deleted=False)
         except Product.DoesNotExist:
             raise Http404('Not Found')
 
-
-class ProductListView(APIView):
     def get(self, request, pk, format=None):
-        product = self.get_objects(pk)
+        product = self.get_object(pk)
+
         serializer = ProductSerializer(product)
         return JsonResponse(serializer.data)
 
 
 class ProductUpdateView(APIView):
-    def put(self, request, pk, format=None):
-        product = self.get_objects(pk)
-        serializer = ProductSerializer(data=request.data)
+
+    def get_object(self, pk):
+        try:
+            return Product.objects.get(id=pk, is_deleted=False)
+        except Product.DoesNotExist:
+            raise Http404('Not Found')
+
+    def post(self, request, pk, format=None):
+        product = self.get_object(pk)
+        # we update the instance of the product instead of creating a new one
+        serializer = ProductSerializer(instance=product, data=request.data)
 
         if serializer.is_valid():
             serializer.save()
@@ -59,8 +70,15 @@ class ProductUpdateView(APIView):
 
 
 class ProductDeleteView(APIView):
+
+    def get_object(self, pk):
+        try:
+            return Product.objects.get(id=pk, is_deleted=False)
+        except Product.DoesNotExist:
+            raise Http404('Not Found')
+
     def delete(self, request, pk, format=None):
-        product = self.get_objects(pk)
-        product.is_deleted = True
+        product = self.get_object(pk)
+        product.is_deleted = False
 
         return HttpResponse(status=status.HTTP_204_NO_CONTENT)
