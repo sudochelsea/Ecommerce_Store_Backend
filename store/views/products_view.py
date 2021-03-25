@@ -18,7 +18,8 @@ class ProductListView(APIView):
 
         product = Product.objects.filter(is_deleted=False)
         serializer = ProductSerializer(product, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        response = {'products': serializer.data, 'status': 'ok'}
+        return JsonResponse(data=response, safe=False)
 
 
 class ProductCreateView(APIView):
@@ -79,6 +80,7 @@ class ProductDeleteView(APIView):
 
     def delete(self, request, pk, format=None):
         product = self.get_object(pk)
-        product.is_deleted = False
-
-        return HttpResponse(status=status.HTTP_204_NO_CONTENT)
+        product.is_deleted = True
+        product.save()
+        response = {'message': f"{product.product_name}  deleted successfully"}
+        return JsonResponse(data=response)
