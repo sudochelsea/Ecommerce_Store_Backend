@@ -1,4 +1,4 @@
-# *Ecommerce_Store_Backend*
+# Ecommerce_Store_Backend
 
 
 An Ecommerce REST api in django .
